@@ -135,6 +135,17 @@ resource "aws_api_gateway_method_response" "db" {
 resource "aws_api_gateway_deployment" "this" {
   rest_api_id = aws_api_gateway_rest_api.this.id
 
+  # Hacky-ish way to force redeployment whenenver one of the 
+  # relevant aspects that require API deployment change. These are
+  # 1. allowed IP addresses
+  # 2. Change in type of API auth method
+  # 3. Changes in the content of the current file
+  tags = {
+    cidrs    = join(",", var.access_list_cidr_blocks)
+    auth     = var.api_basic_auth
+    file_md5 = md5(file("${path.module}/api-gateway.tf"))
+  }
+
   # explicit depends_on required to ensure module stands up on first `apply`
   # otherwise a second followup `apply` would be required
   # can read more here: https://stackoverflow.com/a/42783769
