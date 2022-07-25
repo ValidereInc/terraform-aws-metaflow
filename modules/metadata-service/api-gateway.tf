@@ -140,7 +140,7 @@ resource "aws_api_gateway_deployment" "this" {
   # 1. allowed IP addresses
   # 2. Change in type of API auth method
   # 3. Changes in the content of the current file
-  tags = {
+  triggers = {
     cidrs    = join(",", var.access_list_cidr_blocks)
     auth     = var.api_basic_auth
     file_md5 = md5(file("${path.module}/api-gateway.tf"))
@@ -166,6 +166,7 @@ resource "aws_api_gateway_stage" "staging" {
 }
 
 resource "aws_api_gateway_stage" "prod" {
+  # depends_on basically ensures that deployment to prod happens only if deployment to staging goes through
   depends_on = [
     aws_api_gateway_stage.staging
   ]
