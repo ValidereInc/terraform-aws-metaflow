@@ -160,7 +160,7 @@ resource "aws_api_gateway_deployment" "this" {
 resource "aws_api_gateway_stage" "staging" {
   deployment_id = aws_api_gateway_deployment.this.id
   rest_api_id   = aws_api_gateway_rest_api.this.id
-  stage_name    = var.api_gateway_staging_name
+  stage_name    = var.api_gateway_staging_stage_name
 
   tags = var.standard_tags
 }
@@ -172,7 +172,7 @@ resource "aws_api_gateway_stage" "prod" {
   ]
   deployment_id = aws_api_gateway_deployment.this.id
   rest_api_id   = aws_api_gateway_rest_api.this.id
-  stage_name    = local.api_gateway_stage_name
+  stage_name    = var.api_gateway_prod_stage_name
 
   tags = var.standard_tags
 }
