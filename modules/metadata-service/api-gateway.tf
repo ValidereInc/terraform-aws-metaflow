@@ -160,7 +160,7 @@ resource "aws_api_gateway_deployment" "this" {
 resource "aws_api_gateway_stage" "staging" {
   deployment_id = aws_api_gateway_deployment.this.id
   rest_api_id   = aws_api_gateway_rest_api.this.id
-  stage_name    = "staging_${local.api_gateway_stage_name}"
+  stage_name    = var.api_gateway_staging_name
 
   tags = var.standard_tags
 }
@@ -187,6 +187,11 @@ resource "aws_api_gateway_api_key" "this" {
 resource "aws_api_gateway_usage_plan" "this" {
   count = var.api_basic_auth ? 1 : 0
   name  = local.api_gateway_usage_plan_name
+
+  depends_on = [
+    aws_api_gateway_stage.staging,
+    aws_api_gateway_stage.prod
+  ]
 
   api_stages {
     api_id = aws_api_gateway_rest_api.this.id
