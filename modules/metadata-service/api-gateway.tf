@@ -135,6 +135,17 @@ resource "aws_api_gateway_method_response" "db" {
 resource "aws_api_gateway_deployment" "this" {
   rest_api_id = aws_api_gateway_rest_api.this.id
 
+  # Hacky-ish way to force redeployment whenenver one of the 
+  # relevant aspects that require API deployment change. These are
+  # 1. allowed IP addresses
+  # 2. Change in type of API auth method
+  # 3. Changes in the content of the current file
+  triggers = {
+    cidrs    = join(",", var.access_list_cidr_blocks)
+    auth     = var.api_basic_auth
+    file_md5 = md5(file("${path.module}/api-gateway.tf"))
+  }
+
   # explicit depends_on required to ensure module stands up on first `apply`
   # otherwise a second followup `apply` would be required
   # can read more here: https://stackoverflow.com/a/42783769
@@ -146,10 +157,22 @@ resource "aws_api_gateway_deployment" "this" {
   }
 }
 
-resource "aws_api_gateway_stage" "this" {
+resource "aws_api_gateway_stage" "staging" {
   deployment_id = aws_api_gateway_deployment.this.id
   rest_api_id   = aws_api_gateway_rest_api.this.id
-  stage_name    = local.api_gateway_stage_name
+  stage_name    = var.api_gateway_staging_stage_name
+
+  tags = var.standard_tags
+}
+
+resource "aws_api_gateway_stage" "prod" {
+  # depends_on basically ensures that deployment to prod happens only if deployment to staging goes through
+  depends_on = [
+    aws_api_gateway_stage.staging
+  ]
+  deployment_id = aws_api_gateway_deployment.this.id
+  rest_api_id   = aws_api_gateway_rest_api.this.id
+  stage_name    = var.api_gateway_prod_stage_name
 
   tags = var.standard_tags
 }
@@ -165,9 +188,19 @@ resource "aws_api_gateway_usage_plan" "this" {
   count = var.api_basic_auth ? 1 : 0
   name  = local.api_gateway_usage_plan_name
 
+  depends_on = [
+    aws_api_gateway_stage.staging,
+    aws_api_gateway_stage.prod
+  ]
+
   api_stages {
     api_id = aws_api_gateway_rest_api.this.id
-    stage  = aws_api_gateway_stage.this.stage_name
+    stage  = aws_api_gateway_stage.staging.stage_name
+  }
+
+  api_stages {
+    api_id = aws_api_gateway_rest_api.this.id
+    stage  = aws_api_gateway_stage.prod.stage_name
   }
 
   tags = var.standard_tags

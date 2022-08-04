@@ -2,6 +2,17 @@ variable "access_list_cidr_blocks" {
   type        = list(string)
   description = "List of CIDRs we want to grant access to our Metaflow Metadata Service. Usually this is our VPN's CIDR blocks."
 }
+variable "api_gateway_prod_stage_name" {
+  type        = string
+  default     = "api"
+  description = "The name of the API Gateway stage for production"
+}
+
+variable "api_gateway_staging_stage_name" {
+  type        = string
+  default     = "staging_api"
+  description = "The name of the API Gateway stage for staging"
+}
 
 variable "api_basic_auth" {
   type        = bool
