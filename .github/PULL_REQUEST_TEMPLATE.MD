@@ -17,9 +17,31 @@ Any additional consequences, side effects, uncertainties stemming from the chang
 
 ## Instructions for the Reviewers
 What do you expect from the reviewers? E.g. What code should be run to reproduce the results? Is there anything that needs attention? 
-
+ 
 ## Housekeeping Checklist
 - [ ] Linked the PR to a Jira ticket?
 - [ ] Linked the Jira ticket to the PR?
 - [ ] Checked Draft/vs Ready to Review?
 - [ ] Tagged the reviewers if Ready for Review?
+
+## Code Review Checklist
+
+The following items shall be verified prior to merging any new code into the production environment.
+
+Please refer to the [Code Review Checklist](https://validere.atlassian.net/wiki/spaces/VSSA/pages/1575747930/Code+Review+Checklist) to evaluate each category
+
+**Correctness**
+- [ ] Yes
+- [ ] N/A
+
+**Style and Clarity**
+- [ ] Yes
+- [ ] N/A
+
+**Performance**
+- [ ] Yes
+- [ ] N/A
+
+**Security**
+- [ ] Yes
+- [ ] N/A
